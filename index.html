@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publication Information</title>
+</head>
+<body>
+
+<h1>Publication Information</h1>
+
+<form id="publicationForm">
+    <label for="email">Email:</label>
+    <input type="text" id="email" required>
+
+    <label for="orcid">ORCID:</label>
+    <input type="text" id="orcid" required>
+
+    <button type="button" onclick="fetchAndPrintCSV()">Get Publications</button>
+</form>
+
+<br>
+
+<table id="resultsTable" border="1">
+    <tr>
+        <th>Title</th>
+        <th>DOI</th>
+        <th>License Type</th>
+        <th>OA Status</th>
+    </tr>
+</table>
+
+<p id="csvVersion" style="display: none;">CSV Version:</p>
+
+<script>
+    function is_valid_orcid(orcid) {
+        return /^\d{4}-\d{4}-\d{4}-\d{3}(\d|X)$/.test(orcid);
+    }
+
+    function is_valid_email(email) {
+        return /^\S+@\S+\.\S+$/.test(email);
+    }
+
+    function get_publications(orcid, callback) {
+        const api_url = `https://pub.orcid.org/v3.0/${orcid}/works`;
+        const headers = {'Accept': 'application/json'};
+
+        fetch(api_url, { headers })
+            .then(response => response.json())
+            .then(data => callback(data.group))
+            .catch(error => console.error('Error retrieving publications:', error));
+    }
+
+    function get_doi_info(doi, email, callback) {
+        const api_url = `https://api.unpaywall.org/v2/${doi}?email=${email}`;
+
+        fetch(api_url)
+            .then(response => response.json())
+            .then(data => callback(data))
+            .catch(error => console.error('Error retrieving DOI information:', error));
+    }
+
+    function fetchAndPrintCSV() {
+        const email = document.getElementById('email').value;
+        const orcid = document.getElementById('orcid').value;
+
+        if (!is_valid_email(email) || !is_valid_orcid(orcid)) {
+            alert('Invalid ORCID or email format. Please check and retry.');
+            return;
+        }
+
+        get_publications(orcid, publications => {
+            const resultsTable = document.getElementById('resultsTable');
+            const csvVersion = document.getElementById('csvVersion');
+            csvVersion.style.display = 'none'; // Hide CSV version initially
+
+            resultsTable.innerHTML = '<tr><th>Title</th><th>DOI</th><th>License Type</th><th>OA Status</th></tr>'; // Clear previous results
+
+            if (publications) {
+                publications.forEach(publication => {
+                    printPublicationInfo(publication, email, resultsTable);
+                });
+
+                // Print CSV version
+                const csvContent = generateCSVContent(resultsTable);
+                csvVersion.innerHTML = `<p>CSV Version:<br>${csvContent}</p>`;
+                csvVersion.style.display = 'block'; // Display CSV version
+            }
+        });
+    }
+
+    function printPublicationInfo(publication, email, resultsTable) {
+        const title = publication['work-summary'][0]['title']['title']['value'];
+        const doi = publication['external-ids']['external-id'][0]['external-id-value'];
+
+        get_doi_info(doi, email, doiInfo => {
+            const oaStatus = doiInfo ? doiInfo['oa_status'] || 'Not available' : 'Not available';
+            const bestOALocation = doiInfo ? doiInfo['best_oa_location'] || {} : {};
+            const licenseType = bestOALocation['license'] || 'Unknown';
+
+            const row = `<tr><td>${title}</td><td>${doi}</td><td>${licenseType}</td><td>${oaStatus}</td></tr>`;
+            resultsTable.innerHTML += row;
+        });
+    }
+
+    function generateCSVContent(resultsTable) {
+        let csvContent = '';
+
+        const rows = resultsTable.querySelectorAll('tr');
+        rows.forEach(row => {
+            const rowData = Array.from(row.children).map(cell => cell.textContent).join(',');
+            csvContent += rowData + '\n';
+        });
+
+        return csvContent;
+    }
+</script>
+
+</body>
+</html>
