@@ -1,0 +1,86 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: white;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+h1 {
+    color: #1a1a1a;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+/* Reset some default margin and padding */
+body, h1, h2, h3, p, form {
+    margin: 0;
+    padding: 0;
+}
+
+/* Style for the container */
+.container {
+    width: 60%; /* Adjust the width as needed */
+    margin: 0 auto; /* Center the container */
+}
+
+/* Style for the table */
+#resultsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Adjust the margin as needed */
+}
+
+#resultsTable th, #resultsTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#resultsTable th {
+    background-color: #f2f2f2;
+}
+
+/* Additional styles for form and buttons */
+form {
+    margin-top: 20px; /* Adjust the margin as needed */
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+
+a {
+    color: #1a1a1a;
+}
+
+.rounded {
+    border-radius: 10px;
+}
+
+.gold {
+    background-color: gold;
+}
+
+.green {
+    background-color: green;
+}
+
+.red {
+    background-color: red;
+}
+
+.orange {
+    background-color: orange;
+}

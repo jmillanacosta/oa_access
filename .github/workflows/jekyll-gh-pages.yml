@@ -26,6 +26,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: nbconvert
+        run: |  
+          jupyter nbconvert src/python/build_oa_data.ipynb --to html
+          mv src/python/build_oa_data.html build_oa_data.html
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Pages
